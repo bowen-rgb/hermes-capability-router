@@ -46,6 +46,22 @@ def test_routes_french_image_understanding_request() -> None:
     assert decision.capability.capability_id == "vision.image_understanding"
 
 
+def test_routes_traditional_chinese_ocr_request() -> None:
+    decision = CapabilityResolver(CapabilityRegistry.from_default_file()).route(
+        "請辨識這張截圖裡的文字。"
+    )
+    assert decision.scene == "vision"
+    assert decision.intent == "text_extraction"
+
+
+def test_routes_french_unaccented_ocr_request() -> None:
+    decision = CapabilityResolver(CapabilityRegistry.from_default_file()).route(
+        "Lis le texte de cette capture d'ecran."
+    )
+    assert decision.scene == "vision"
+    assert decision.intent == "text_extraction"
+
+
 def test_plugin_registers_only_supported_hermes_hooks() -> None:
     class FakeContext:
         def __init__(self) -> None:

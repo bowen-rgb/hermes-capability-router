@@ -66,7 +66,7 @@ class AnnotationEngine:
                 intents=("text_extraction", "ocr"),
                 tags=(
                     "ocr", "text extraction", "image to text",
-                    "文字提取", "识别文字",
+                    "文字提取", "识别文字", "文字擷取", "辨識文字",
                     "extraction de texte", "reconnaissance de texte",
                 ),
                 implementations=(

@@ -27,15 +27,17 @@ class SemanticRouter:
     _EXAMPLES = {
         "text_extraction": (
             "提取文字", "提取这张", "识别文字", "图片文字", "截图文字", "截图里的文字",
+            "文字擷取", "辨識文字", "圖片文字", "截圖文字", "截圖裡的文字",
             "ocr", "text extraction", "image to text",
             "extraire le texte", "extrais le texte", "copier le texte",
-            "texte de l'image", "reconnaissance de texte",
+            "lire le texte", "lis le texte", "texte de l'image", "reconnaissance de texte",
         ),
         "image_understanding": (
-            "图片里有什么", "图片内容", "理解图片",
+            "图片里有什么", "图片内容", "理解图片", "圖片裡有什麼", "圖片內容", "理解圖片",
             "describe image", "image understanding",
             "qu'y a-t-il dans l'image", "qu'y a-t-il dans cette image",
             "que contient l'image", "comprendre l'image", "décrire l'image",
+            "decrire l'image", "comprendre cette image",
         ),
     }
 

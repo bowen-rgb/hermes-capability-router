@@ -4,9 +4,32 @@ This repository contains a Hermes **general plugin**, not an MCP server.
 
 Licensed under the [MIT License](LICENSE).
 
+**Read this in:** [English](README.md) | [简体中文](README.zh-CN.md) | [Français](README.fr.md)
+
 > **Language support:** the seeded routing vocabulary explicitly supports
 > English, Chinese (中文), and French (français). The optional multilingual
 > embedding backend also provides semantic matching across these languages.
+
+## Multilingual strategy
+
+The project follows a practical pattern used by multilingual semantic-search
+projects:
+
+1. Keep one stable capability/intent identifier (`vision.image_text_extraction`),
+   rather than creating a separate router per language.
+2. Maintain explicit Chinese (简体/繁體), French (accented and common
+   non-accented forms), and English examples for precise, deterministic matches.
+3. Use the local multilingual embedding model as a fallback for paraphrases or
+   cross-language wording that is not in the rule examples.
+4. Keep translated prose in separate README files, but keep commands, JSON
+   keys, capability IDs, and code identifiers unchanged.
+5. Add regression tests for each supported language before expanding the
+   vocabulary.
+
+The configured `paraphrase-multilingual-MiniLM-L12-v2` model is trained for
+semantic similarity across 50+ languages, including Chinese and French; no
+input-language parameter is required. See the
+[Sentence Transformers multilingual model documentation](https://sbert.net/docs/sentence_transformer/pretrained_models.html).
 
 ## Current V1 increment
 

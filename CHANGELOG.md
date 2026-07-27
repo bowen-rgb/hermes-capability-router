@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.2 — 2026-07-27
+
+- Add Chinese and French README files, linked from the GitHub homepage.
+- Document the multilingual routing approach and its regression-test policy.
+- Expand explicit vocabulary for Traditional Chinese and French unaccented input.
+
 ## v0.1.1 — 2026-07-27
 
 - Add explicit Chinese and French scene, intent, and annotation vocabulary.

@@ -17,12 +17,13 @@ class SceneRouter:
     _EXAMPLES = {
         "vision": (
             "图片", "截图", "图像", "屏幕", "画面",
+            "圖片", "截圖", "圖像", "螢幕", "畫面",
             "image", "photo", "screen", "vision",
-            "écran", "capture d'écran", "photo", "image",
+            "écran", "ecran", "capture d'écran", "capture d'ecran", "photo", "image",
         ),
         "document": (
-            "pdf", "合同", "文档", "扫描件",
-            "document", "contrat", "numérisé", "scan", "fichier",
+            "pdf", "合同", "文档", "扫描件", "合約", "文件", "掃描件",
+            "document", "contrat", "numérisé", "numerise", "scan", "fichier",
         ),
         "coding": (
             "代码", "python", "github", "debug", "程序",
