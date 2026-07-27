@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.3 — 2026-07-27
+
+- Add transparent upstream acknowledgements and distinguish architecture
+  references from optional dependencies and integrations.
+
 ## v0.1.2 — 2026-07-27
 
 - Add Chinese and French README files, linked from the GitHub homepage.

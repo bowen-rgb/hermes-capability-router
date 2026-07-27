@@ -136,6 +136,20 @@ $HermesPython = "$env:LOCALAPPDATA\hermes\hermes-agent\venv\Scripts\python.exe"
 修改配置后重启 Gateway。`offline_only` 在模型下载完成后保持 `true`；`threshold`
 越高，匹配越严格。
 
+## 致谢与上游参考
+
+本插件为独立实现，并以 MIT 许可证发布。下列项目没有被复制或打包进本项目；它们分别
+提供架构启发或可选集成能力：
+
+| 项目 | 与本插件的关系 |
+| --- | --- |
+| [aurelio-labs/semantic-router](https://github.com/aurelio-labs/semantic-router) | **仅架构参考。** 本插件的 Semantic Router 借鉴了它的 route / utterance / embedding threshold 思路；不导入、不打包，也不是运行时依赖。 |
+| [huggingface/sentence-transformers](https://github.com/huggingface/sentence-transformers) | **可选运行时依赖。** 仅在启用本地 embedding 语义回退时使用。 |
+| [D4Vinci/Scrapling](https://github.com/D4Vinci/Scrapling) | **可选集成。** 只有在安装其可选 fetcher 依赖后，`ScraplingFetcher` 才用于 HTML 提取。 |
+| [GitHub REST API](https://docs.github.com/en/rest) | **外部元数据接口。** 用于发现仓库简介和 README；公开仓库发现不需要 Token。 |
+
+请分别查看每个上游项目自己的许可证与署名要求。
+
 ## 安装插件
 
 将 `plugin/` 目录内的内容复制到：

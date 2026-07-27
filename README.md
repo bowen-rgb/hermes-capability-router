@@ -31,6 +31,21 @@ semantic similarity across 50+ languages, including Chinese and French; no
 input-language parameter is required. See the
 [Sentence Transformers multilingual model documentation](https://sbert.net/docs/sentence_transformer/pretrained_models.html).
 
+## Acknowledgements and upstream references
+
+This plugin is independently implemented and distributed under the MIT License.
+It does not vendor or copy source code from the projects below. They are
+credited for either an architectural idea or an optional integration:
+
+| Project | Relationship to this plugin |
+| --- | --- |
+| [aurelio-labs/semantic-router](https://github.com/aurelio-labs/semantic-router) | **Architecture reference only.** Its route/utterance/embedding-threshold model informed this plugin's Semantic Router boundary. It is not imported, bundled, or required at runtime. |
+| [huggingface/sentence-transformers](https://github.com/huggingface/sentence-transformers) | **Optional runtime dependency.** Used only when local embedding-based semantic fallback is enabled. |
+| [D4Vinci/Scrapling](https://github.com/D4Vinci/Scrapling) | **Optional integration.** The `ScraplingFetcher` adapter is used only when its optional fetcher dependency is installed for HTML extraction. |
+| [GitHub REST API](https://docs.github.com/en/rest) | **External metadata interface.** Used for repository descriptions and README discovery; public discovery also works without a token. |
+
+Please consult each upstream project for its own license and attribution terms.
+
 ## Current V1 increment
 
 - Reads seeded capability metadata.

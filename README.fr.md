@@ -142,6 +142,22 @@ Redémarrez la Gateway après une modification. Gardez `offline_only` à `true`
 après le téléchargement du modèle ; un `threshold` plus élevé rend le routage
 plus strict.
 
+## Remerciements et références amont
+
+Ce plugin est une implémentation indépendante publiée sous licence MIT. Le
+code source des projets ci-dessous n'est ni copié ni embarqué ici ; ils sont
+cités pour une idée d'architecture ou une intégration facultative :
+
+| Projet | Relation avec ce plugin |
+| --- | --- |
+| [aurelio-labs/semantic-router](https://github.com/aurelio-labs/semantic-router) | **Référence d'architecture uniquement.** Son approche route / utterance / seuil d'embedding a inspiré la frontière du Semantic Router ; le projet n'est ni importé, ni embarqué, ni requis à l'exécution. |
+| [huggingface/sentence-transformers](https://github.com/huggingface/sentence-transformers) | **Dépendance d'exécution facultative.** Utilisée uniquement si le repli sémantique par embedding local est activé. |
+| [D4Vinci/Scrapling](https://github.com/D4Vinci/Scrapling) | **Intégration facultative.** `ScraplingFetcher` ne sert à l'extraction HTML que lorsque la dépendance fetcher est installée. |
+| [GitHub REST API](https://docs.github.com/en/rest) | **Interface de métadonnées externe.** Utilisée pour les descriptions de dépôt et la découverte de README ; les dépôts publics ne demandent pas de token. |
+
+Veuillez consulter les licences et obligations d'attribution propres à chaque
+projet amont.
+
 ## Installer le plugin
 
 Copiez le contenu de `plugin/` dans :
