@@ -1,0 +1,14 @@
+{
+  "embedding": {
+    "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "offline_only": true,
+    "threshold": 0.42
+  },
+  "github": {
+    "token_env": "GITHUB_TOKEN",
+    "request_timeout_seconds": 15
+  },
+  "annotation": {
+    "require_human_review": true
+  }
+}

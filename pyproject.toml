@@ -1,0 +1,16 @@
+[project]
+name = "hermes-capability-router"
+version = "0.1.0"
+description = "Capability-first routing plugin for Hermes Agent"
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+embeddings = [
+  "sentence-transformers>=2.7,<3",
+  "huggingface-hub>=0.34,<1.0",
+]
+scrapling = ["scrapling[fetchers]"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["plugin"]

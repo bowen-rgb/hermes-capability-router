@@ -1,0 +1,34 @@
+{
+  "capabilities": [
+    {
+      "capability_id": "vision.image_text_extraction",
+      "name": "Image text extraction",
+      "description": "Extract readable text from an image, screenshot, or scanned document.",
+      "scenes": ["vision", "document"],
+      "intents": ["text_extraction", "ocr"],
+      "tags": ["ocr", "text extraction", "image to text", "截图", "文字提取", "识别文字"],
+      "implementations": [
+        {
+          "implementation_id": "paddleocr-local",
+          "name": "PaddleOCR",
+          "type": "python_package",
+          "interface": "python",
+          "tool_names": ["paddleocr"],
+          "source": "https://github.com/PaddlePaddle/PaddleOCR",
+          "availability": "unknown",
+          "strengths": ["OCR"],
+          "weaknesses": ["Does not perform general image reasoning"]
+        }
+      ]
+    },
+    {
+      "capability_id": "vision.image_understanding",
+      "name": "Image understanding",
+      "description": "Describe or reason about image content.",
+      "scenes": ["vision"],
+      "intents": ["image_understanding"],
+      "tags": ["image understanding", "visual reasoning", "图片里有什么", "图片内容", "图像理解"],
+      "implementations": []
+    }
+  ]
+}
