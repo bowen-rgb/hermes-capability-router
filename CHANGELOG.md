@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.1 — 2026-07-27
+
+- Add explicit Chinese and French scene, intent, and annotation vocabulary.
+- Document local embedding installation, download, and live configuration.
+- Add both lifecycle diagrams and structure trees to the GitHub README.
+
 ## v0.1.0 — 2026-07-27
 
 Initial public release of the Hermes Capability Router Plugin.

@@ -15,9 +15,19 @@ class SceneRouter:
     """Transparent V1 classifier, replaceable by a local embedding classifier."""
 
     _EXAMPLES = {
-        "vision": ("图片", "截图", "图像", "屏幕", "画面", "image", "photo", "screen", "vision"),
-        "document": ("pdf", "合同", "文档", "扫描件", "document"),
-        "coding": ("代码", "python", "github", "debug", "程序"),
+        "vision": (
+            "图片", "截图", "图像", "屏幕", "画面",
+            "image", "photo", "screen", "vision",
+            "écran", "capture d'écran", "photo", "image",
+        ),
+        "document": (
+            "pdf", "合同", "文档", "扫描件",
+            "document", "contrat", "numérisé", "scan", "fichier",
+        ),
+        "coding": (
+            "代码", "python", "github", "debug", "程序",
+            "code", "débogage", "dépanner", "programme",
+        ),
     }
 
     def route(self, request: str) -> SceneMatch:

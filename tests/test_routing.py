@@ -26,6 +26,26 @@ def test_routes_image_understanding_request() -> None:
     assert decision.capability.capability_id == "vision.image_understanding"
 
 
+def test_routes_french_ocr_request() -> None:
+    decision = CapabilityResolver(CapabilityRegistry.from_default_file()).route(
+        "Extrais le texte de cette capture d'écran."
+    )
+    assert decision.scene == "vision"
+    assert decision.intent == "text_extraction"
+    assert decision.capability is not None
+    assert decision.capability.capability_id == "vision.image_text_extraction"
+
+
+def test_routes_french_image_understanding_request() -> None:
+    decision = CapabilityResolver(CapabilityRegistry.from_default_file()).route(
+        "Qu'y a-t-il dans cette image ?"
+    )
+    assert decision.scene == "vision"
+    assert decision.intent == "image_understanding"
+    assert decision.capability is not None
+    assert decision.capability.capability_id == "vision.image_understanding"
+
+
 def test_plugin_registers_only_supported_hermes_hooks() -> None:
     class FakeContext:
         def __init__(self) -> None:

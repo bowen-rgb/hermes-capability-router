@@ -25,13 +25,29 @@ class IntentMatch:
 
 class SemanticRouter:
     _EXAMPLES = {
-        "text_extraction": ("提取文字", "提取这张", "识别文字", "图片文字", "截图文字", "截图里的文字", "ocr", "text extraction", "image to text"),
-        "image_understanding": ("图片里有什么", "图片内容", "理解图片", "describe image", "image understanding"),
+        "text_extraction": (
+            "提取文字", "提取这张", "识别文字", "图片文字", "截图文字", "截图里的文字",
+            "ocr", "text extraction", "image to text",
+            "extraire le texte", "extrais le texte", "copier le texte",
+            "texte de l'image", "reconnaissance de texte",
+        ),
+        "image_understanding": (
+            "图片里有什么", "图片内容", "理解图片",
+            "describe image", "image understanding",
+            "qu'y a-t-il dans l'image", "qu'y a-t-il dans cette image",
+            "que contient l'image", "comprendre l'image", "décrire l'image",
+        ),
     }
 
     _PROTOTYPES = {
-        "text_extraction": "Read or copy text from an image, screenshot, scanned document, OCR, 图片文字提取 识别截图文字",
-        "image_understanding": "Understand, describe, or reason about what is in an image, 图片内容 图像理解",
+        "text_extraction": (
+            "Read or copy text from an image, screenshot, scanned document, OCR; "
+            "图片文字提取 识别截图文字; extraire ou copier le texte d'une image"
+        ),
+        "image_understanding": (
+            "Understand, describe, or reason about what is in an image; "
+            "图片内容 图像理解; comprendre ou décrire le contenu d'une image"
+        ),
     }
 
     def __init__(self, embedding_backend: EmbeddingBackend | None = None, embedding_threshold: float | None = None) -> None:

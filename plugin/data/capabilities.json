@@ -6,7 +6,7 @@
       "description": "Extract readable text from an image, screenshot, or scanned document.",
       "scenes": ["vision", "document"],
       "intents": ["text_extraction", "ocr"],
-      "tags": ["ocr", "text extraction", "image to text", "截图", "文字提取", "识别文字"],
+      "tags": ["ocr", "text extraction", "image to text", "截图", "文字提取", "识别文字", "extraction de texte", "reconnaissance de texte", "texte de l'image"],
       "implementations": [
         {
           "implementation_id": "paddleocr-local",
@@ -27,7 +27,7 @@
       "description": "Describe or reason about image content.",
       "scenes": ["vision"],
       "intents": ["image_understanding"],
-      "tags": ["image understanding", "visual reasoning", "图片里有什么", "图片内容", "图像理解"],
+      "tags": ["image understanding", "visual reasoning", "图片里有什么", "图片内容", "图像理解", "comprendre l'image", "décrire l'image", "contenu de l'image"],
       "implementations": []
     }
   ]

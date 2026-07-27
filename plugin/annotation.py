@@ -64,7 +64,11 @@ class AnnotationEngine:
                 description="Extract readable text from an image, screenshot, or scanned document.",
                 scenes=("vision", "document"),
                 intents=("text_extraction", "ocr"),
-                tags=("ocr", "text extraction", "image to text"),
+                tags=(
+                    "ocr", "text extraction", "image to text",
+                    "文字提取", "识别文字",
+                    "extraction de texte", "reconnaissance de texte",
+                ),
                 implementations=(
                     Implementation(
                         implementation_id=self._identifier(name),
