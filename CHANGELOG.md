@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.1.4 — 2026-07-29
+
+- Add per-item annotation review states, visible issue reasons, explicit
+  incorrect-tag marking, manual tag edits, rejection history, and approval
+  blocking while red issues remain.
+- Add curated preset capability categories and portable emoji status colours
+  for readable Hermes chat output.
+
 ## v0.1.3 — 2026-07-27
 
 - Add transparent upstream acknowledgements and distinguish architecture

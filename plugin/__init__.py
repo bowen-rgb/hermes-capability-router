@@ -27,6 +27,6 @@ def register(ctx) -> None:
     ctx.register_command(
         "capability-review",
         lambda raw_args: capability_review_command(store, queue, raw_args),
-        description="List or approve pending capability annotations.",
-        args_hint="[approve <number>]",
+        description="Review, correct, and approve discovered capability metadata.",
+        args_hint="[pending|approve|reject|set-tags|apply-preset|mark-wrong|presets]",
     )

@@ -145,9 +145,13 @@ Discovery & Annotation
     └── persistent pending-review queue
 ```
 
-`/capability-review` lists pending drafts in Hermes. Use
-`/capability-review approve <number>` only after checking the source and its
-actual availability on the machine.
+`/capability-review` now shows every draft with a portable coloured status:
+🟡 pending, 🟠 needs correction, 🟢 approved, and 🔴 rejected. A red `🟥`
+issue identifies the specific incorrect tag or blocking problem; it must be
+corrected before approval. Reviewers can use `set-tags`, `mark-wrong`, and
+`apply-preset`, rather than approving an opaque batch. See the
+[Chinese review guide](docs/annotation-review.zh-CN.md) for the complete
+command reference and preset category list.
 
 ## Embeddings: installation and configuration
 

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from dataclasses import replace
 from pathlib import Path
 
 from .models import AnnotationDraft, Capability, Implementation, capability_from_dict, capability_to_dict
@@ -53,10 +54,19 @@ class CapabilityStore:
                     capability_json TEXT NOT NULL,
                     confidence REAL NOT NULL,
                     status TEXT NOT NULL,
+                    review_json TEXT NOT NULL DEFAULT '[]',
+                    review_note TEXT NOT NULL DEFAULT '',
                     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
                 );
                 """
             )
+            # Existing plugin installations have the original draft table.
+            # Additive migrations retain all pending human-review records.
+            columns = {row[1] for row in connection.execute("PRAGMA table_info(annotation_drafts)")}
+            if "review_json" not in columns:
+                connection.execute("ALTER TABLE annotation_drafts ADD COLUMN review_json TEXT NOT NULL DEFAULT '[]'")
+            if "review_note" not in columns:
+                connection.execute("ALTER TABLE annotation_drafts ADD COLUMN review_note TEXT NOT NULL DEFAULT ''")
 
     def upsert(self, capability: Capability) -> None:
         self.initialize()
@@ -139,14 +149,21 @@ class CapabilityStore:
         with self._connect() as connection:
             connection.execute(
                 """
-                INSERT INTO annotation_drafts(draft_id, source_type, source_location, capability_json, confidence, status)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO annotation_drafts(
+                    draft_id, source_type, source_location, capability_json, confidence, status, review_json, review_note
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(draft_id) DO UPDATE SET
                     capability_json=excluded.capability_json,
                     confidence=excluded.confidence,
+                    review_json=excluded.review_json,
+                    review_note=excluded.review_note,
                     status=CASE WHEN annotation_drafts.status='approved' THEN 'approved' ELSE excluded.status END
                 """,
-                (draft_id, draft.source_type, draft.source_location, json.dumps(capability_to_dict(draft.capability)), draft.confidence, draft.status),
+                (
+                    draft_id, draft.source_type, draft.source_location,
+                    json.dumps(capability_to_dict(draft.capability)), draft.confidence, draft.status,
+                    json.dumps(draft.review_issues), draft.review_note,
+                ),
             )
         return draft_id
 
@@ -163,13 +180,7 @@ class CapabilityStore:
         return tuple(
             (
                 row["draft_id"],
-                AnnotationDraft(
-                    row["source_type"],
-                    row["source_location"],
-                    capability_from_dict(json.loads(row["capability_json"])),
-                    row["confidence"],
-                    row["status"],
-                ),
+                self._draft_from_row(row),
             )
             for row in rows
         )
@@ -184,7 +195,7 @@ class CapabilityStore:
                 raise KeyError(f"Unknown annotation draft: {draft_id}")
             if row["status"] == "approved":
                 capability = capability_from_dict(json.loads(row["capability_json"]))
-            elif row["status"] != "pending_review":
+            elif row["status"] not in {"pending_review", "needs_correction"}:
                 raise ValueError(f"Draft {draft_id!r} cannot be approved from {row['status']!r}")
             else:
                 capability = capability_from_dict(json.loads(row["capability_json"]))
@@ -192,10 +203,56 @@ class CapabilityStore:
         self.upsert(capability)
         return capability
 
+    def get_draft(self, draft_id: str) -> AnnotationDraft:
+        self.initialize()
+        with self._connect() as connection:
+            row = connection.execute("SELECT * FROM annotation_drafts WHERE draft_id = ?", (draft_id,)).fetchone()
+        if row is None:
+            raise KeyError(f"Unknown annotation draft: {draft_id}")
+        return self._draft_from_row(row)
+
+    def update_draft(self, draft_id: str, draft: AnnotationDraft) -> AnnotationDraft:
+        """Update reviewable metadata without activating the capability."""
+        self.initialize()
+        with self._connect() as connection:
+            existing = connection.execute("SELECT status FROM annotation_drafts WHERE draft_id = ?", (draft_id,)).fetchone()
+            if existing is None:
+                raise KeyError(f"Unknown annotation draft: {draft_id}")
+            if existing["status"] == "approved":
+                raise ValueError("Approved drafts cannot be changed through review; register a new capability revision instead.")
+            connection.execute(
+                """UPDATE annotation_drafts SET capability_json=?, confidence=?, status=?, review_json=?, review_note=?
+                   WHERE draft_id=?""",
+                (
+                    json.dumps(capability_to_dict(draft.capability)), draft.confidence, draft.status,
+                    json.dumps(draft.review_issues), draft.review_note, draft_id,
+                ),
+            )
+        return draft
+
+    def reject_draft(self, draft_id: str, note: str = "") -> AnnotationDraft:
+        draft = self.get_draft(draft_id)
+        if draft.status == "approved":
+            raise ValueError("Approved drafts cannot be rejected from the review queue.")
+        return self.update_draft(draft_id, replace(draft, status="rejected", review_note=note or draft.review_note))
+
     def _connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self._path)
         connection.row_factory = sqlite3.Row
         return connection
+
+    @staticmethod
+    def _draft_from_row(row: sqlite3.Row) -> AnnotationDraft:
+        raw_issues = json.loads(row["review_json"] or "[]") if "review_json" in row.keys() else []
+        return AnnotationDraft(
+            row["source_type"],
+            row["source_location"],
+            capability_from_dict(json.loads(row["capability_json"])),
+            row["confidence"],
+            row["status"],
+            tuple((item[0], item[1], item[2] if len(item) > 2 else None) for item in raw_issues),
+            row["review_note"] if "review_note" in row.keys() else "",
+        )
 
     @staticmethod
     def _implementation_from_row(row: sqlite3.Row) -> Implementation:

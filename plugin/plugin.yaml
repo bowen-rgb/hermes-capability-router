@@ -1,5 +1,5 @@
 name: hermes-capability-router
-version: 0.1.3
+version: 0.1.4
 description: Capability-first Scene, Semantic, and implementation routing guidance for Hermes.
 author: Local
 kind: standalone

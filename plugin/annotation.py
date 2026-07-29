@@ -8,10 +8,12 @@ draft is persisted in the runtime Capability Registry.
 from __future__ import annotations
 
 import re
+from dataclasses import replace
 from typing import Any
 
 from .models import AnnotationDraft, Capability, Implementation
 from .storage import CapabilityStore
+from .taxonomy import assess_capability, get_preset
 
 
 class AnnotationReviewQueue:
@@ -24,7 +26,7 @@ class AnnotationReviewQueue:
         """Persist discovered metadata for review, without activating it."""
         if draft.status != "pending_review":
             raise ValueError("Only pending drafts can enter the review queue.")
-        return self._store.save_draft(draft)
+        return self._store.save_draft(self._assess(draft))
 
     def approve(self, draft: AnnotationDraft) -> Capability:
         if draft.status not in {"pending_review", "approved"}:
@@ -33,7 +35,57 @@ class AnnotationReviewQueue:
         return draft.capability
 
     def approve_by_id(self, draft_id: str) -> Capability:
+        draft = self._store.get_draft(draft_id)
+        if any(severity == "error" for severity, _, _ in draft.review_issues):
+            raise ValueError("Resolve or remove the red-tagged review issues before approval.")
         return self._store.approve_draft(draft_id)
+
+    def edit_tags(self, draft_id: str, tags: tuple[str, ...]) -> AnnotationDraft:
+        draft = self._store.get_draft(draft_id)
+        capability = replace(draft.capability, tags=tags)
+        return self._store.update_draft(draft_id, self._assess(replace(draft, capability=capability, status="pending_review")))
+
+    def apply_preset(self, draft_id: str, preset_id: str) -> AnnotationDraft:
+        preset = get_preset(preset_id)
+        if preset is None:
+            raise KeyError(f"Unknown preset category: {preset_id}")
+        draft = self._store.get_draft(draft_id)
+        capability = replace(
+            draft.capability,
+            capability_id=preset.capability_id,
+            name=preset.name,
+            description=preset.description,
+            scenes=preset.scenes,
+            intents=preset.intents,
+            tags=preset.tags,
+        )
+        return self._store.update_draft(draft_id, self._assess(replace(draft, capability=capability, status="pending_review")))
+
+    def flag_tag(self, draft_id: str, tag: str, note: str = "") -> AnnotationDraft:
+        draft = self._store.get_draft(draft_id)
+        issues = tuple(item for item in draft.review_issues if item[2] != tag)
+        issues += (("error", note or f"Tag '{tag}' was marked incorrect by a reviewer.", tag),)
+        return self._store.update_draft(
+            draft_id, replace(draft, status="needs_correction", review_issues=issues, review_note=note or draft.review_note)
+        )
+
+    def reject_by_id(self, draft_id: str, note: str = "") -> AnnotationDraft:
+        return self._store.reject_draft(draft_id, note)
+
+    @staticmethod
+    def _assess(draft: AnnotationDraft) -> AnnotationDraft:
+        automatic = assess_capability(draft.capability, draft.confidence)
+        current_tags = {tag.casefold() for tag in draft.capability.tags}
+        manual = tuple(
+            item for item in draft.review_issues
+            if item[0] == "error"
+            and "marked incorrect by a reviewer" in item[1]
+            and item[2] is not None
+            and item[2].casefold() in current_tags
+        )
+        issues = automatic + manual
+        status = "needs_correction" if any(item[0] == "error" for item in issues) else "pending_review"
+        return replace(draft, status=status, review_issues=issues)
 
 
 class AnnotationEngine:

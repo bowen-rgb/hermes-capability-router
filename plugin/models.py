@@ -43,6 +43,8 @@ class AnnotationDraft:
     capability: Capability
     confidence: float
     status: str = "pending_review"
+    review_issues: tuple[tuple[str, str, str | None], ...] = ()
+    review_note: str = ""
 
 
 @dataclass(frozen=True)

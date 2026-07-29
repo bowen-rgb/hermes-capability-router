@@ -169,5 +169,65 @@ def test_review_command_lists_and_approves_pending_draft(tmp_path) -> None:  # n
     )
     assert "PaddleOCR" in capability_review_command(store, queue, "")
     result = capability_review_command(store, queue, "approve 1")
-    assert result.startswith("Approved Image text extraction")
+    assert "Approved Image text extraction" in result
     assert store.get("vision.image_text_extraction") is not None
+
+
+def test_review_command_marks_wrong_tag_and_keeps_draft_visible(tmp_path) -> None:  # noqa: ANN001
+    store = CapabilityStore(tmp_path / "capabilities.sqlite3")
+    queue = AnnotationReviewQueue(store)
+    queue.submit(
+        AnnotationEngine().annotate(
+            source_type="github_repository",
+            source_location="https://github.com/example/ambiguous-image-tool",
+            name="Ambiguous image tool",
+            description="Image helper",
+        )
+    )
+    result = capability_review_command(store, queue, "mark-wrong 1 github_repository wrong source tag")
+    assert "Marked tag 'github_repository' as incorrect" in result
+    listing = capability_review_command(store, queue, "")
+    assert "needs correction" in listing
+    assert "github_repository" in listing
+    assert "wrong source tag" in listing
+
+
+def test_review_command_edits_tags_and_applies_preset(tmp_path) -> None:  # noqa: ANN001
+    store = CapabilityStore(tmp_path / "capabilities.sqlite3")
+    queue = AnnotationReviewQueue(store)
+    queue.submit(
+        AnnotationEngine().annotate(
+            source_type="cli",
+            source_location="C:/bin/image-reader.exe",
+            name="Image reader",
+            description="Reads image text",
+        )
+    )
+    assert "Updated tags" in capability_review_command(store, queue, "set-tags 1 custom tag, needs-review")
+    assert "Applied preset" in capability_review_command(
+        store, queue, "apply-preset 1 vision.image_text_extraction"
+    )
+    draft = store.list_drafts()[0][1]
+    assert draft.capability.capability_id == "vision.image_text_extraction"
+    assert "ocr" in draft.capability.tags
+
+
+def test_correction_must_be_resolved_before_approval(tmp_path) -> None:  # noqa: ANN001
+    store = CapabilityStore(tmp_path / "capabilities.sqlite3")
+    queue = AnnotationReviewQueue(store)
+    queue.submit(AnnotationEngine().annotate(
+        source_type="github_repository",
+        source_location="https://github.com/example/reader",
+        name="Reader",
+        description="Image helper",
+    ))
+    capability_review_command(store, queue, "mark-wrong 1 github_repository incorrect tag")
+    assert "Resolve or remove" in capability_review_command(store, queue, "approve 1")
+    capability_review_command(store, queue, "set-tags 1 image helper")
+    assert "Approved" in capability_review_command(store, queue, "approve 1")
+
+
+def test_review_command_shows_preset_categories(tmp_path) -> None:  # noqa: ANN001
+    store = CapabilityStore(tmp_path / "capabilities.sqlite3")
+    queue = AnnotationReviewQueue(store)
+    assert "vision.image_text_extraction" in capability_review_command(store, queue, "presets")
