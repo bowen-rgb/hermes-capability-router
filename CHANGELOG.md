@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.5 — 2026-07-29
+
+- Use SQLite WAL mode and a bounded busy timeout for the capability registry.
+- Avoid repeated schema initialization in the plugin process.
+
 ## v0.1.4 — 2026-07-29
 
 - Add per-item annotation review states, visible issue reasons, explicit

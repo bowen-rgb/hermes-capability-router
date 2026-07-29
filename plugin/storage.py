@@ -18,13 +18,18 @@ from .models import AnnotationDraft, Capability, Implementation, capability_from
 class CapabilityStore:
     def __init__(self, path: Path) -> None:
         self._path = path
+        self._initialized = False
 
     def initialize(self) -> None:
+        if self._initialized:
+            return
         self._path.parent.mkdir(parents=True, exist_ok=True)
         with self._connect() as connection:
             connection.executescript(
                 """
                 PRAGMA foreign_keys = ON;
+                PRAGMA journal_mode = WAL;
+                PRAGMA busy_timeout = 10000;
                 CREATE TABLE IF NOT EXISTS capabilities (
                     capability_id TEXT PRIMARY KEY,
                     name TEXT NOT NULL,
@@ -67,6 +72,7 @@ class CapabilityStore:
                 connection.execute("ALTER TABLE annotation_drafts ADD COLUMN review_json TEXT NOT NULL DEFAULT '[]'")
             if "review_note" not in columns:
                 connection.execute("ALTER TABLE annotation_drafts ADD COLUMN review_note TEXT NOT NULL DEFAULT ''")
+        self._initialized = True
 
     def upsert(self, capability: Capability) -> None:
         self.initialize()
@@ -237,8 +243,13 @@ class CapabilityStore:
         return self.update_draft(draft_id, replace(draft, status="rejected", review_note=note or draft.review_note))
 
     def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self._path)
+        # The gateway, a slash command, and a discovery task can touch this
+        # small registry in close succession.  WAL plus a bounded busy wait
+        # avoids turning a transient writer overlap into a user-visible error.
+        connection = sqlite3.connect(self._path, timeout=10)
         connection.row_factory = sqlite3.Row
+        connection.execute("PRAGMA foreign_keys = ON")
+        connection.execute("PRAGMA busy_timeout = 10000")
         return connection
 
     @staticmethod

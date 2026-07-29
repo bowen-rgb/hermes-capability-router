@@ -156,6 +156,16 @@ def test_pending_annotation_draft_is_persisted(tmp_path) -> None:  # noqa: ANN00
     assert pending[0][1].capability.capability_id == "vision.image_text_extraction"
 
 
+def test_store_uses_wal_and_reuses_initialized_schema(tmp_path) -> None:  # noqa: ANN001
+    store = CapabilityStore(tmp_path / "capabilities.sqlite3")
+    store.initialize()
+    store.initialize()
+    import sqlite3
+
+    with sqlite3.connect(tmp_path / "capabilities.sqlite3") as connection:
+        assert connection.execute("PRAGMA journal_mode").fetchone()[0].lower() == "wal"
+
+
 def test_review_command_lists_and_approves_pending_draft(tmp_path) -> None:  # noqa: ANN001
     store = CapabilityStore(tmp_path / "capabilities.sqlite3")
     queue = AnnotationReviewQueue(store)
