@@ -8,6 +8,7 @@ from plugin.registry import CapabilityRegistry
 from plugin.routing import CapabilityResolver
 from plugin.storage import CapabilityStore
 from plugin import register
+from plugin.hooks import CapabilityRouterHooks
 
 
 def test_routes_chinese_ocr_request() -> None:
@@ -78,6 +79,37 @@ def test_plugin_registers_only_supported_hermes_hooks() -> None:
     context = FakeContext()
     register(context)
     assert context.hooks == ["pre_llm_call", "pre_tool_call", "post_tool_call"]
+
+
+def test_plugin_registers_when_command_metadata_is_not_supported() -> None:
+    class LegacyContext:
+        def __init__(self) -> None:
+            self.hooks: list[str] = []
+            self.commands: list[str] = []
+
+        def register_hook(self, name, callback) -> None:  # noqa: ANN001
+            assert callable(callback)
+            self.hooks.append(name)
+
+        def register_command(self, name, callback) -> None:  # noqa: ANN001
+            assert callable(callback)
+            self.commands.append(name)
+
+    context = LegacyContext()
+    register(context)
+    assert context.hooks == ["pre_llm_call", "pre_tool_call", "post_tool_call"]
+    assert context.commands == ["capability-review"]
+
+
+def test_hook_fails_open_when_router_raises() -> None:
+    hooks = CapabilityRouterHooks(CapabilityRegistry.from_default_file())
+
+    class BrokenResolver:
+        def route(self, _text):  # noqa: ANN001
+            raise RuntimeError("simulated compatibility failure")
+
+    hooks._resolver = BrokenResolver()  # type: ignore[assignment]
+    assert hooks.pre_llm_call("please route this") is None
 
 
 def test_approved_annotation_draft_becomes_runtime_capability(tmp_path) -> None:  # noqa: ANN001

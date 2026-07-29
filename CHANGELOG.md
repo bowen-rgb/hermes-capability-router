@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.1.6 — 2026-07-29
+
+- Make all Router hooks fail open: a compatibility or routing error now leaves
+  Hermes to continue normally instead of propagating through the gateway.
+- Move user-supplied GitHub metadata discovery off the gateway event loop.
+- Add compatibility fallback for Hermes command registration APIs.
+
 ## v0.1.5 — 2026-07-29
 
 - Use SQLite WAL mode and a bounded busy timeout for the capability registry.
